@@ -4,6 +4,7 @@ const API = axios.create({
     baseURL: "https://chat-backend-production-98ad.up.railway.app/api",
  // backend URL
 });
+API.get("/auth/users") // ✅ this matches /api/auth/users
 
 // If token exists, send it automatically
 API.interceptors.request.use((req) => {
