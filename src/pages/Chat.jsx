@@ -17,7 +17,8 @@ function Chat() {
         const userInfo = JSON.parse(localStorage.getItem("userInfo"));
         if (userInfo) {
             setUser(userInfo);
-            socket.emit("join", userInfo._id);
+            socket.emit("registerUser", userInfo._id);
+
 
             // Fetch all users (except self)
             API.get("/auth/users").then((res) => {
