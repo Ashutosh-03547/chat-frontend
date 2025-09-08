@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import socket from "../utils/socket";
 import API from "../utils/api";
 import MessageInput from "./MessageInput";
-import Sidebar from "./Sidebar"; // ✅ new import
+import Sidebar from "./Sidebar";
 
 function Chat() {
     const navigate = useNavigate();
@@ -18,13 +18,14 @@ function Chat() {
         if (userInfo) {
             setUser(userInfo);
             socket.emit("join", userInfo._id);
+
+            // Fetch all users (except self)
+            API.get("/auth/users").then((res) => {
+                setUsers(res.data.filter((u) => u._id !== userInfo._id));
+            });
         } else {
             navigate("/login");
         }
-
-        API.get("/auth/users").then((res) => {
-            setUsers(res.data.filter((u) => u._id !== userInfo._id));
-        });
 
         socket.on("privateMessage", (msg) => {
             setMessages((prev) => [...prev, msg]);
@@ -46,7 +47,7 @@ function Chat() {
     };
 
     const sendMessage = (text) => {
-        if (!text.trim() || !selectedUser) return;
+        if (!text.trim() || !selectedUser || !user) return;
 
         const msgData = {
             from: user._id,
@@ -61,7 +62,7 @@ function Chat() {
 
     return (
         <div style={{ display: "flex", height: "100vh" }}>
-            {/* ✅ Sidebar component */}
+            {/* Sidebar */}
             <Sidebar
                 users={users}
                 selectedUser={selectedUser}
@@ -78,47 +79,53 @@ function Chat() {
                 color: "white"
             }}>
                 <div style={{ padding: "10px", borderBottom: "1px solid #333" }}>
-                    <h3>{selectedUser?.name || "Select a chat"}</h3>
+                    <h3>{selectedUser ? selectedUser.name : "Select a chat"}</h3>
                 </div>
 
                 {/* Messages */}
                 <div style={{ flex: 1, padding: "10px", overflowY: "auto" }}>
-                    {messages
-                        .filter(
-                            (m) =>
-                                (m.from === user?._id && m.to === selectedUser?._id) ||
-                                (m.from === selectedUser?._id && m.to === user?._id)
-                        )
-                        .map((msg, i) => (
-                            <div
-                                key={i}
-                                style={{
-                                    margin: "6px 0",
-                                    textAlign: msg.from === user?._id ? "right" : "left"
-                                }}
-                            >
-                                <span
+                    {selectedUser ? (
+                        messages
+                            .filter(
+                                (m) =>
+                                    (m.from === user?._id && m.to === selectedUser._id) ||
+                                    (m.from === selectedUser._id && m.to === user?._id)
+                            )
+                            .map((msg, i) => (
+                                <div
+                                    key={i}
                                     style={{
-                                        display: "inline-block",
-                                        background: msg.from === user?._id ? "#25D366" : "#2f2f2f",
-                                        color: msg.from === user?._id ? "black" : "white",
-                                        padding: "8px 12px",
-                                        borderRadius: "12px",
-                                        maxWidth: "70%",
-                                        wordWrap: "break-word"
+                                        margin: "6px 0",
+                                        textAlign: msg.from === user?._id ? "right" : "left"
                                     }}
                                 >
-                                    {msg.text}
-                                    <div style={{ fontSize: "0.75rem", marginTop: "2px", opacity: 0.7 }}>
-                                        {msg.time}
-                                    </div>
-                                </span>
-                            </div>
-                        ))}
+                                    <span
+                                        style={{
+                                            display: "inline-block",
+                                            background: msg.from === user?._id ? "#25D366" : "#2f2f2f",
+                                            color: msg.from === user?._id ? "black" : "white",
+                                            padding: "8px 12px",
+                                            borderRadius: "12px",
+                                            maxWidth: "70%",
+                                            wordWrap: "break-word"
+                                        }}
+                                    >
+                                        {msg.text}
+                                        <div style={{ fontSize: "0.75rem", marginTop: "2px", opacity: 0.7 }}>
+                                            {msg.time}
+                                        </div>
+                                    </span>
+                                </div>
+                            ))
+                    ) : (
+                        <p style={{ textAlign: "center", marginTop: "20px", color: "#aaa" }}>
+                            👈 Select a user to start chatting
+                        </p>
+                    )}
                     <div ref={messagesEndRef} />
                 </div>
 
-                {/* Input */}
+                {/* Input only shows if user selected */}
                 {selectedUser && <MessageInput onSend={sendMessage} />}
             </div>
         </div>
@@ -126,3 +133,4 @@ function Chat() {
 }
 
 export default Chat;
+

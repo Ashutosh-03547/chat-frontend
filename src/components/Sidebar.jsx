@@ -30,23 +30,26 @@ function Sidebar({ users, selectedUser, onSelectUser, onLogout }) {
                 </button>
             </div>
             <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
-                {users.map((u) => (
-                    <li
-                        key={u._id}
-                        onClick={() => onSelectUser(u)}
-                        style={{
-                            padding: "10px",
-                            cursor: "pointer",
-                            background: selectedUser?._id === u._id ? "#333" : "transparent"
-                        }}
-                    >
-                        {u.name}
-                    </li>
-                ))}
+                {users.length === 0 ? (
+                    <li style={{ padding: "10px", color: "#888" }}>No users online</li>
+                ) : (
+                    users.map((u) => (
+                        <li
+                            key={u._id}
+                            onClick={() => onSelectUser(u)}
+                            style={{
+                                padding: "10px",
+                                cursor: "pointer",
+                                background: selectedUser?._id === u._id ? "#333" : "transparent"
+                            }}
+                        >
+                            {u.name}
+                        </li>
+                    ))
+                )}
             </ul>
         </div>
     );
 }
 
 export default Sidebar;
-
