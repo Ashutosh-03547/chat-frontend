@@ -27,6 +27,7 @@ function Chat() {
             navigate("/login");
         }
 
+        // ✅ Listen for incoming private messages
         socket.on("privateMessage", (msg) => {
             setMessages((prev) => [...prev, msg]);
         });
@@ -35,6 +36,17 @@ function Chat() {
             socket.off("privateMessage");
         };
     }, [navigate]);
+
+    // ✅ Fetch old messages when selecting a user
+    useEffect(() => {
+        if (selectedUser && user) {
+            API.get(`/messages/${selectedUser._id}`)
+                .then((res) => {
+                    setMessages(res.data);
+                })
+                .catch((err) => console.error("❌ Error fetching messages:", err));
+        }
+    }, [selectedUser, user]);
 
     useEffect(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -53,11 +65,13 @@ function Chat() {
             from: user._id,
             to: selectedUser._id,
             text,
-            time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
+            time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
         };
 
         socket.emit("privateMessage", msgData);
-        setMessages((prev) => [...prev, msgData]);
+
+        // Show immediately in UI
+        setMessages((prev) => [...prev, { ...msgData, from: { _id: user._id } }]);
     };
 
     return (
@@ -71,13 +85,15 @@ function Chat() {
             />
 
             {/* Chat Window */}
-            <div style={{
-                flex: 1,
-                display: "flex",
-                flexDirection: "column",
-                backgroundColor: "#0b141a",
-                color: "white"
-            }}>
+            <div
+                style={{
+                    flex: 1,
+                    display: "flex",
+                    flexDirection: "column",
+                    backgroundColor: "#0b141a",
+                    color: "white",
+                }}
+            >
                 <div style={{ padding: "10px", borderBottom: "1px solid #333" }}>
                     <h3>{selectedUser ? selectedUser.name : "Select a chat"}</h3>
                 </div>
@@ -85,38 +101,41 @@ function Chat() {
                 {/* Messages */}
                 <div style={{ flex: 1, padding: "10px", overflowY: "auto" }}>
                     {selectedUser ? (
-                        messages
-                            .filter(
-                                (m) =>
-                                    (m.from === user?._id && m.to === selectedUser._id) ||
-                                    (m.from === selectedUser._id && m.to === user?._id)
-                            )
-                            .map((msg, i) => (
+                        messages.map((msg, i) => {
+                            const fromId = msg.from?._id || msg.from; // support both populated + plain
+                            return (
                                 <div
                                     key={i}
                                     style={{
                                         margin: "6px 0",
-                                        textAlign: msg.from === user?._id ? "right" : "left"
+                                        textAlign: fromId === user?._id ? "right" : "left",
                                     }}
                                 >
                                     <span
                                         style={{
                                             display: "inline-block",
-                                            background: msg.from === user?._id ? "#25D366" : "#2f2f2f",
-                                            color: msg.from === user?._id ? "black" : "white",
+                                            background: fromId === user?._id ? "#25D366" : "#2f2f2f",
+                                            color: fromId === user?._id ? "black" : "white",
                                             padding: "8px 12px",
                                             borderRadius: "12px",
                                             maxWidth: "70%",
-                                            wordWrap: "break-word"
+                                            wordWrap: "break-word",
                                         }}
                                     >
                                         {msg.text}
-                                        <div style={{ fontSize: "0.75rem", marginTop: "2px", opacity: 0.7 }}>
+                                        <div
+                                            style={{
+                                                fontSize: "0.75rem",
+                                                marginTop: "2px",
+                                                opacity: 0.7,
+                                            }}
+                                        >
                                             {msg.time}
                                         </div>
                                     </span>
                                 </div>
-                            ))
+                            );
+                        })
                     ) : (
                         <p style={{ textAlign: "center", marginTop: "20px", color: "#aaa" }}>
                             👈 Select a user to start chatting
@@ -133,4 +152,3 @@ function Chat() {
 }
 
 export default Chat;
-
