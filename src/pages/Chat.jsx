@@ -1,33 +1,31 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import socket from "../utils/socket";
-import API from "../utils/api"; // 👈 to fetch users
+import API from "../utils/api";
+import MessageInput from "./MessageInput";
+import Sidebar from "./Sidebar"; // ✅ new import
 
 function Chat() {
     const navigate = useNavigate();
     const [user, setUser] = useState(null);
-    const [users, setUsers] = useState([]); // all users
+    const [users, setUsers] = useState([]);
     const [selectedUser, setSelectedUser] = useState(null);
-    const [message, setMessage] = useState("");
     const [messages, setMessages] = useState([]);
     const messagesEndRef = useRef(null);
 
-    // Load user & register socket
     useEffect(() => {
         const userInfo = JSON.parse(localStorage.getItem("userInfo"));
         if (userInfo) {
             setUser(userInfo);
-            socket.emit("join", userInfo._id); // ✅ register on socket
+            socket.emit("join", userInfo._id);
         } else {
             navigate("/login");
         }
 
-        // Load all users (except me)
         API.get("/auth/users").then((res) => {
             setUsers(res.data.filter((u) => u._id !== userInfo._id));
         });
 
-        // Listen for private messages
         socket.on("privateMessage", (msg) => {
             setMessages((prev) => [...prev, msg]);
         });
@@ -47,63 +45,29 @@ function Chat() {
         navigate("/login");
     };
 
-    const sendMessage = (e) => {
-        e.preventDefault();
-        if (!message.trim() || !selectedUser) return;
+    const sendMessage = (text) => {
+        if (!text.trim() || !selectedUser) return;
 
         const msgData = {
             from: user._id,
             to: selectedUser._id,
-            text: message,
+            text,
             time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
         };
 
         socket.emit("privateMessage", msgData);
-        setMessages((prev) => [...prev, msgData]); // show immediately
-        setMessage("");
+        setMessages((prev) => [...prev, msgData]);
     };
 
     return (
         <div style={{ display: "flex", height: "100vh" }}>
-            {/* Sidebar (Users) */}
-            <div style={{
-                width: "30%",
-                background: "#111",
-                color: "white",
-                borderRight: "1px solid #333",
-                overflowY: "auto"
-            }}>
-                <div style={{ padding: "10px", borderBottom: "1px solid #333" }}>
-                    <h3>Chats</h3>
-                    <button
-                        onClick={handleLogout}
-                        style={{
-                            background: "#ff4444",
-                            color: "white",
-                            border: "none",
-                            borderRadius: "4px",
-                            padding: "5px 10px",
-                            cursor: "pointer",
-                            marginTop: "5px"
-                        }}
-                    >
-                        Logout
-                    </button>
-                </div>
-                {users.map((u) => (
-                    <div
-                        key={u._id}
-                        onClick={() => setSelectedUser(u)}
-                        style={{
-                            padding: "10px",
-                            cursor: "pointer",
-                            background: selectedUser?._id === u._id ? "#333" : "transparent"
-                        }}
-                    >
-                        {u.name}
-                    </div>
-                ))}
-            </div>
+            {/* ✅ Sidebar component */}
+            <Sidebar
+                users={users}
+                selectedUser={selectedUser}
+                onSelectUser={setSelectedUser}
+                onLogout={handleLogout}
+            />
 
             {/* Chat Window */}
             <div style={{
@@ -155,39 +119,7 @@ function Chat() {
                 </div>
 
                 {/* Input */}
-                {selectedUser && (
-                    <form
-                        onSubmit={sendMessage}
-                        style={{ marginTop: "10px", display: "flex", padding: "10px" }}
-                    >
-                        <input
-                            type="text"
-                            placeholder="Type a message..."
-                            value={message}
-                            onChange={(e) => setMessage(e.target.value)}
-                            style={{
-                                flex: 1,
-                                padding: "10px",
-                                borderRadius: "20px",
-                                border: "none",
-                                background: "#1f1f1f",
-                                color: "white"
-                            }}
-                        />
-                        <button
-                            type="submit"
-                            style={{
-                                marginLeft: "5px",
-                                backgroundColor: "#25D366",
-                                border: "none",
-                                borderRadius: "20px",
-                                padding: "10px 20px"
-                            }}
-                        >
-                            Send
-                        </button>
-                    </form>
-                )}
+                {selectedUser && <MessageInput onSend={sendMessage} />}
             </div>
         </div>
     );
