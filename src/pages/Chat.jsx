@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import socket from "../utils/socket";
 import API from "../utils/api";
-import MessageInput from "../components/MessageInput";
 import Sidebar from "../components/Sidebar";
 
 function Chat() {
@@ -11,6 +10,7 @@ function Chat() {
     const [users, setUsers] = useState([]);
     const [selectedUser, setSelectedUser] = useState(null);
     const [messages, setMessages] = useState([]);
+    const [message, setMessage] = useState("");
     const messagesEndRef = useRef(null);
 
     useEffect(() => {
@@ -67,13 +67,13 @@ function Chat() {
         navigate("/login");
     };
 
-    const sendMessage = (text) => {
-        if (!text.trim() || !selectedUser || !user) return;
+    const sendMessage = () => {
+        if (!message.trim() || !selectedUser || !user) return;
 
         const msgData = {
             from: user._id,
             to: selectedUser._id,
-            text,
+            text: message,
             time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
         };
 
@@ -82,6 +82,7 @@ function Chat() {
 
         // Show immediately in UI
         setMessages((prev) => [...prev, { ...msgData, from: { _id: user._id } }]);
+        setMessage("");
     };
 
     return (
@@ -155,7 +156,47 @@ function Chat() {
                 </div>
 
                 {/* Input only shows if user selected */}
-                {selectedUser && <MessageInput onSend={sendMessage} />}
+                {selectedUser && (
+                    <div
+                        style={{
+                            display: "flex",
+                            padding: "10px",
+                            background: "#1f1f1f",
+                            borderTop: "1px solid #333",
+                        }}
+                    >
+                        <input
+                            type="text"
+                            placeholder="Type a message..."
+                            value={message}
+                            onChange={(e) => setMessage(e.target.value)}
+                            style={{
+                                flex: 1,
+                                padding: "12px",
+                                borderRadius: "20px",
+                                border: "none",
+                                outline: "none",
+                                marginRight: "10px",
+                                backgroundColor: "#2a2f32",
+                                color: "white",
+                            }}
+                        />
+                        <button
+                            onClick={sendMessage}
+                            style={{
+                                backgroundColor: "#25D366",
+                                color: "#121212",
+                                fontWeight: "bold",
+                                padding: "12px 20px",
+                                border: "none",
+                                borderRadius: "20px",
+                                cursor: "pointer",
+                            }}
+                        >
+                            Send
+                        </button>
+                    </div>
+                )}
             </div>
         </div>
     );

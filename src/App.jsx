@@ -6,6 +6,9 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import Register from "./pages/Register";
 
 function App() {
+  // check if user is logged in (based on token in localStorage)
+  const isLoggedIn = !!localStorage.getItem("token");
+
   return (
     <div>
       {/* Navbar */}
@@ -22,7 +25,7 @@ function App() {
           zIndex: 1000,
         }}
       >
-        {/* Left side → Logo */}
+        {/* Logo */}
         <Link
           to="/"
           style={{
@@ -35,20 +38,22 @@ function App() {
           SocketChat
         </Link>
 
-        {/* Right side → Login button */}
-        <Link
-          to="/login"
-          style={{
-            padding: "8px 16px",
-            backgroundColor: "#25D366",
-            color: "#121212",
-            borderRadius: "6px",
-            fontWeight: "bold",
-            textDecoration: "none",
-          }}
-        >
-          Login
-        </Link>
+        {/* Show Login only if user not logged in */}
+        {!isLoggedIn && (
+          <Link
+            to="/login"
+            style={{
+              padding: "8px 16px",
+              backgroundColor: "#25D366",
+              color: "#121212",
+              borderRadius: "6px",
+              fontWeight: "bold",
+              textDecoration: "none",
+            }}
+          >
+            Login
+          </Link>
+        )}
       </nav>
 
       {/* Routes */}
