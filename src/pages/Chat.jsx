@@ -17,19 +17,23 @@ function Chat() {
         const userInfo = JSON.parse(localStorage.getItem("userInfo"));
         if (userInfo) {
             setUser(userInfo);
+            console.log("✅ Logged in user:", userInfo);
             socket.emit("registerUser", userInfo._id);
 
-
             // Fetch all users (except self)
-            API.get("/auth/users").then((res) => {
-                setUsers(res.data.filter((u) => u._id !== userInfo._id));
-            });
+            API.get("/auth/users")
+                .then((res) => {
+                    console.log("✅ Users fetched:", res.data);
+                    setUsers(res.data.filter((u) => u._id !== userInfo._id));
+                })
+                .catch((err) => console.error("❌ Error fetching users:", err));
         } else {
             navigate("/login");
         }
 
         // ✅ Listen for incoming private messages
         socket.on("privateMessage", (msg) => {
+            console.log("📩 New privateMessage received:", msg);
             setMessages((prev) => [...prev, msg]);
         });
 
@@ -41,11 +45,15 @@ function Chat() {
     // ✅ Fetch old messages when selecting a user
     useEffect(() => {
         if (selectedUser && user) {
+            console.log(`📨 Fetching chat with user: ${selectedUser._id}`);
             API.get(`/messages/${selectedUser._id}`)
                 .then((res) => {
+                    console.log("✅ Messages fetched from backend:", res.data);
                     setMessages(res.data);
                 })
                 .catch((err) => console.error("❌ Error fetching messages:", err));
+        } else {
+            setMessages([]); // clear when no chat selected
         }
     }, [selectedUser, user]);
 
@@ -69,6 +77,7 @@ function Chat() {
             time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
         };
 
+        console.log("📤 Sending message:", msgData);
         socket.emit("privateMessage", msgData);
 
         // Show immediately in UI
@@ -103,7 +112,7 @@ function Chat() {
                 <div style={{ flex: 1, padding: "10px", overflowY: "auto" }}>
                     {selectedUser ? (
                         messages.map((msg, i) => {
-                            const fromId = msg.from?._id || msg.from; // support both populated + plain
+                            const fromId = msg.from?._id || msg.from;
                             return (
                                 <div
                                     key={i}
