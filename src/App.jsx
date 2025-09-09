@@ -1,51 +1,71 @@
-import {  Routes, Route, Link } from "react-router-dom";
+import { Routes, Route, Link } from "react-router-dom";
 import Home from "./pages/Home";
 import Chat from "./pages/Chat";
 import Login from "./pages/Login";
 import ProtectedRoute from "./components/ProtectedRoute";
-// At the top of App.jsx
-import Register from "./pages/Register"; // or wherever your component is
-
+import Register from "./pages/Register";
 
 function App() {
   return (
-    
-      <div>
-        <nav
+    <div>
+      {/* Navbar */}
+      <nav
+        style={{
+          background: "#0b141a",
+          padding: "15px 40px",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          borderBottom: "1px solid #222",
+          position: "sticky",
+          top: 0,
+          zIndex: 1000,
+        }}
+      >
+        {/* Left side → Logo */}
+        <Link
+          to="/"
           style={{
-            background: "#1f1f1f",
-            padding: "10px",
-            display: "flex",
-            gap: "15px",
+            color: "#25D366",
+            fontSize: "22px",
+            fontWeight: "bold",
+            textDecoration: "none",
           }}
         >
-          <Link to="/" style={{ color: "#25D366", textDecoration: "none" }}>
-            Home
-          </Link>
-          <Link to="/login" style={{ color: "#25D366", textDecoration: "none" }}>
-            Login
-          </Link>
-          <Link to="/chat" style={{ color: "#25D366", textDecoration: "none" }}>
-            Chat
-          </Link>
-        </nav>
+          SocketChat
+        </Link>
 
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
+        {/* Right side → Login button */}
+        <Link
+          to="/login"
+          style={{
+            padding: "8px 16px",
+            backgroundColor: "#25D366",
+            color: "#121212",
+            borderRadius: "6px",
+            fontWeight: "bold",
+            textDecoration: "none",
+          }}
+        >
+          Login
+        </Link>
+      </nav>
 
-          <Route
-            path="/chat"
-            element={
-              <ProtectedRoute>
-                <Chat />
-              </ProtectedRoute>
-            }
-          />
-        </Routes>
-      </div>
-    
+      {/* Routes */}
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route
+          path="/chat"
+          element={
+            <ProtectedRoute>
+              <Chat />
+            </ProtectedRoute>
+          }
+        />
+      </Routes>
+    </div>
   );
 }
 
