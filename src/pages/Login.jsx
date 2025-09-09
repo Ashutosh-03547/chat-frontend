@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import API from "../utils/api"; // axios instance
+import "../styles/Login.css"; // 👈 new css file
 
 function Login() {
     const [form, setForm] = useState({ email: "", password: "" });
@@ -20,91 +21,46 @@ function Login() {
             localStorage.setItem("userInfo", JSON.stringify(data));
 
             setMessage("✅ Login successful!");
-            navigate("/chat"); // redirect to chat page
+            navigate("/chat");
         } catch (error) {
             setMessage(error.response?.data?.message || "❌ Login failed");
         }
     };
 
     return (
-        <div
-            style={{
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                height: "80vh",
-            }}
-        >
-            <form
-                onSubmit={handleSubmit}
-                style={{
-                    backgroundColor: "#1f1f1f",
-                    padding: "30px",
-                    borderRadius: "8px",
-                    width: "300px",
-                    textAlign: "center",
-                }}
-            >
-                <h2 style={{ color: "#25D366", marginBottom: "20px" }}>Login</h2>
+        <div className="login-container">
+            <div className="login-box">
+                <h1 className="logo">SocketChat</h1>
+                <h2>Login</h2>
 
-                <input
-                    type="email"
-                    name="email"
-                    placeholder="Enter email"
-                    value={form.email}
-                    onChange={handleChange}
-                    style={{
-                        width: "100%",
-                        padding: "10px",
-                        marginBottom: "15px",
-                        borderRadius: "4px",
-                        border: "1px solid #333",
-                        backgroundColor: "#121212",
-                        color: "#e0e0e0",
-                    }}
-                />
-                <input
-                    type="password"
-                    name="password"
-                    placeholder="Enter password"
-                    value={form.password}
-                    onChange={handleChange}
-                    style={{
-                        width: "100%",
-                        padding: "10px",
-                        marginBottom: "15px",
-                        borderRadius: "4px",
-                        border: "1px solid #333",
-                        backgroundColor: "#121212",
-                        color: "#e0e0e0",
-                    }}
-                />
+                <form onSubmit={handleSubmit}>
+                    <input
+                        type="email"
+                        name="email"
+                        placeholder="Enter email"
+                        value={form.email}
+                        onChange={handleChange}
+                        required
+                    />
+                    <input
+                        type="password"
+                        name="password"
+                        placeholder="Enter password"
+                        value={form.password}
+                        onChange={handleChange}
+                        required
+                    />
 
-                <button
-                    type="submit"
-                    style={{
-                        width: "100%",
-                        padding: "10px",
-                        backgroundColor: "#25D366",
-                        border: "none",
-                        borderRadius: "4px",
-                        fontWeight: "bold",
-                        cursor: "pointer",
-                    }}
-                >
-                    Enter Chat
-                </button>
+                    <button type="submit">Enter Chat</button>
+                </form>
 
-                <p style={{ color: "white", marginTop: "10px" }}>{message}</p>
+                <p className="message">{message}</p>
 
-                {/* ✅ Add register link */}
-                <p style={{ color: "#e0e0e0", marginTop: "15px" }}>
+                <p className="switch">
                     Don't have an account?{" "}
-                    <Link to="/register" style={{ color: "#ffbb33", fontWeight: "bold" }}>
-                        Register here
-                    </Link>
+                    <Link to="/register">Register here</Link>
                 </p>
-            </form>
+            </div>
         </div>
     );
 }

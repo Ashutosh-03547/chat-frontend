@@ -4,18 +4,10 @@ import "../styles/Home.css";
 function Home() {
     return (
         <div className="home-container">
-            {/* Header */}
-            <header className="home-header">
-                <h1 className="logo">SocketChat</h1>
-                <nav>
-                    <Link to="/login" className="nav-btn">Login</Link>
-                    <Link to="/register" className="nav-btn secondary">Register</Link>
-                </nav>
-            </header>
-
             {/* Hero Section */}
             <section className="hero">
                 <div className="hero-text">
+                    <h1 className="logo">SocketChat</h1>
                     <h2>Chat in Real-Time, Anywhere</h2>
                     <p>
                         Connect instantly with your friends using <b>SocketChat</b>.

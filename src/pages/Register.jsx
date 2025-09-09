@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import API from "../utils/api";
+import "../styles/Login.css"; // 👈 reuse login css theme
 
 export default function Register() {
     const [form, setForm] = useState({ name: "", email: "", password: "" });
@@ -15,99 +16,59 @@ export default function Register() {
         e.preventDefault();
         try {
             const { data } = await API.post("/auth/register", form);
-            localStorage.setItem("token", data.token); // save JWT
-            localStorage.setItem("chatUser", data.name); // save username
+
+            // Save full user info for consistency
+            localStorage.setItem("userInfo", JSON.stringify(data));
+
             setMessage("✅ Registered successfully!");
-            navigate("/chat"); // go straight to chat after register
+            navigate("/chat");
         } catch (error) {
             setMessage(error.response?.data?.message || "❌ Registration failed");
         }
     };
 
     return (
-        <div style={{
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            height: "80vh"
-        }}>
-            <form
-                onSubmit={handleSubmit}
-                style={{
-                    backgroundColor: "#1f1f1f",
-                    padding: "30px",
-                    borderRadius: "8px",
-                    width: "300px",
-                    textAlign: "center"
-                }}
-            >
-                <h2 style={{ color: "#25D366", marginBottom: "20px" }}>Register</h2>
+        <div className="login-container">
+            <div className="login-box">
+                <h1 className="logo">SocketChat</h1>
+                <h2>Register</h2>
 
-                <input
-                    type="text"
-                    name="name"
-                    placeholder="Enter name"
-                    value={form.name}
-                    onChange={handleChange}
-                    style={{
-                        width: "100%",
-                        padding: "10px",
-                        marginBottom: "15px",
-                        borderRadius: "4px",
-                        border: "1px solid #333",
-                        backgroundColor: "#121212",
-                        color: "#e0e0e0"
-                    }}
-                />
-                <input
-                    type="email"
-                    name="email"
-                    placeholder="Enter email"
-                    value={form.email}
-                    onChange={handleChange}
-                    style={{
-                        width: "100%",
-                        padding: "10px",
-                        marginBottom: "15px",
-                        borderRadius: "4px",
-                        border: "1px solid #333",
-                        backgroundColor: "#121212",
-                        color: "#e0e0e0"
-                    }}
-                />
-                <input
-                    type="password"
-                    name="password"
-                    placeholder="Enter password"
-                    value={form.password}
-                    onChange={handleChange}
-                    style={{
-                        width: "100%",
-                        padding: "10px",
-                        marginBottom: "15px",
-                        borderRadius: "4px",
-                        border: "1px solid #333",
-                        backgroundColor: "#121212",
-                        color: "#e0e0e0"
-                    }}
-                />
+                <form onSubmit={handleSubmit}>
+                    <input
+                        type="text"
+                        name="name"
+                        placeholder="Enter name"
+                        value={form.name}
+                        onChange={handleChange}
+                        required
+                    />
+                    <input
+                        type="email"
+                        name="email"
+                        placeholder="Enter email"
+                        value={form.email}
+                        onChange={handleChange}
+                        required
+                    />
+                    <input
+                        type="password"
+                        name="password"
+                        placeholder="Enter password"
+                        value={form.password}
+                        onChange={handleChange}
+                        required
+                    />
 
-                <button
-                    type="submit"
-                    style={{
-                        width: "100%",
-                        padding: "10px",
-                        backgroundColor: "#25D366",
-                        border: "none",
-                        borderRadius: "4px",
-                        fontWeight: "bold",
-                        cursor: "pointer"
-                    }}
-                >
-                    Create Account
-                </button>
-                <p style={{ color: "white", marginTop: "10px" }}>{message}</p>
-            </form>
+                    <button type="submit">Create Account</button>
+                </form>
+
+                <p className="message">{message}</p>
+
+                <p className="switch">
+                    Already have an account?{" "}
+                    <Link to="/login">Login here</Link>
+                </p>
+            </div>
         </div>
     );
 }
