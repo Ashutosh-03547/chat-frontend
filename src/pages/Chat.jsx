@@ -46,7 +46,7 @@ function Chat() {
     useEffect(() => {
         if (selectedUser && user) {
             console.log(`📨 Fetching chat with user: ${selectedUser._id}`);
-            API.get(`/messages/${selectedUser._id}`)
+            API.get(`/messages/${selectedUser._id}?myId=${user._id}`)
                 .then((res) => {
                     console.log("✅ Messages fetched from backend:", res.data);
                     setMessages(res.data);
