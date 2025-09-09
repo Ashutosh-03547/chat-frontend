@@ -2,7 +2,8 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import socket from "../utils/socket";
 import API from "../utils/api";
-import MessageInput from "./MessageInput";
+import MessageInput from "../components/MessageInput";
+
 import Sidebar from "./Sidebar";
 
 function Chat() {
