@@ -1,29 +1,36 @@
 import { Link } from "react-router-dom";
+import "../styles/Home.css";
 
 function Home() {
     return (
-        <div style={{
-            padding: "40px",
-            textAlign: "center"
-        }}>
-            <h1 style={{ color: "#25D366", marginBottom: "20px" }}>
-                Welcome to MERN Chat
-            </h1>
-            <p style={{ marginBottom: "30px" }}>
-                A real-time chat app built with MERN & Socket.io
-            </p>
-            <Link
-                to="/login"
-                style={{
-                    padding: "12px 20px",
-                    backgroundColor: "#25D366",
-                    color: "#121212",
-                    borderRadius: "6px",
-                    fontWeight: "bold"
-                }}
-            >
-                Get Started
-            </Link>
+        <div className="home-container">
+            {/* Header */}
+            <header className="home-header">
+                <h1 className="logo">SocketChat</h1>
+                <nav>
+                    <Link to="/login" className="nav-btn">Login</Link>
+                    <Link to="/register" className="nav-btn secondary">Register</Link>
+                </nav>
+            </header>
+
+            {/* Hero Section */}
+            <section className="hero">
+                <div className="hero-text">
+                    <h2>Chat in Real-Time, Anywhere</h2>
+                    <p>
+                        Connect instantly with your friends using <b>SocketChat</b>.
+                        Fast, reliable and secure — powered by <b>Socket.io</b> & MongoDB.
+                    </p>
+                    <Link to="/login" className="cta-btn">Get Started</Link>
+                </div>
+
+                <div className="hero-image">
+                    <img
+                        src="https://cdn-icons-png.flaticon.com/512/134/134914.png"
+                        alt="Chat Illustration"
+                    />
+                </div>
+            </section>
         </div>
     );
 }
