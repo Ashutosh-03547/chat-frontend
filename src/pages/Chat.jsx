@@ -30,7 +30,6 @@ function Chat() {
 
         // ✅ Listen for incoming private messages
         socket.on("privateMessage", (msg) => {
-            // prevent duplicate if already shown optimistically
             setMessages((prev) => {
                 const isDuplicate = prev.some(
                     (m) =>
@@ -82,24 +81,37 @@ function Chat() {
             time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
         };
 
-        // ✅ Optimistic update (instant feel)
+        // ✅ Optimistic update
         setMessages((prev) => [...prev, { ...msgData, from: { _id: user._id } }]);
 
-        // Send to server
         socket.emit("privateMessage", msgData);
 
         setMessage("");
     };
 
     return (
-        <div style={{ display: "flex", height: "100vh" }}>
+        <div
+            style={{
+                display: "flex",
+                height: "100vh",
+                flexDirection: "row",
+            }}
+        >
             {/* Sidebar */}
-            <Sidebar
-                users={users}
-                selectedUser={selectedUser}
-                onSelectUser={setSelectedUser}
-                onLogout={handleLogout}
-            />
+            <div
+                style={{
+                    width: "280px",
+                    minWidth: "220px",
+                    borderRight: "1px solid #333",
+                }}
+            >
+                <Sidebar
+                    users={users}
+                    selectedUser={selectedUser}
+                    onSelectUser={setSelectedUser}
+                    onLogout={handleLogout}
+                />
+            </div>
 
             {/* Chat Window */}
             <div
@@ -112,11 +124,20 @@ function Chat() {
                 }}
             >
                 <div style={{ padding: "10px", borderBottom: "1px solid #333" }}>
-                    <h3>{selectedUser ? selectedUser.name : "Select a chat"}</h3>
+                    <h3 style={{ fontSize: "1rem" }}>
+                        {selectedUser ? selectedUser.name : "Select a chat"}
+                    </h3>
                 </div>
 
                 {/* Messages */}
-                <div style={{ flex: 1, padding: "10px", overflowY: "auto" }}>
+                <div
+                    style={{
+                        flex: 1,
+                        padding: "10px",
+                        overflowY: "auto",
+                        fontSize: "0.95rem",
+                    }}
+                >
                     {selectedUser ? (
                         messages.map((msg, i) => {
                             const fromId = msg.from?._id || msg.from;
@@ -131,18 +152,20 @@ function Chat() {
                                     <span
                                         style={{
                                             display: "inline-block",
-                                            background: fromId === user?._id ? "#25D366" : "#2f2f2f",
+                                            background:
+                                                fromId === user?._id ? "#25D366" : "#2f2f2f",
                                             color: fromId === user?._id ? "black" : "white",
                                             padding: "8px 12px",
                                             borderRadius: "12px",
-                                            maxWidth: "70%",
+                                            maxWidth: "80%",
                                             wordWrap: "break-word",
+                                            fontSize: "0.9rem",
                                         }}
                                     >
                                         {msg.text}
                                         <div
                                             style={{
-                                                fontSize: "0.75rem",
+                                                fontSize: "0.7rem",
                                                 marginTop: "2px",
                                                 opacity: 0.7,
                                             }}
@@ -154,7 +177,14 @@ function Chat() {
                             );
                         })
                     ) : (
-                        <p style={{ textAlign: "center", marginTop: "20px", color: "#aaa" }}>
+                        <p
+                            style={{
+                                textAlign: "center",
+                                marginTop: "20px",
+                                color: "#aaa",
+                                fontSize: "0.9rem",
+                            }}
+                        >
                             👈 Select a user to start chatting
                         </p>
                     )}
@@ -186,6 +216,7 @@ function Chat() {
                                 outline: "none",
                                 backgroundColor: "#2a2f32",
                                 color: "white",
+                                fontSize: "0.9rem",
                             }}
                         />
                         <button
@@ -195,7 +226,7 @@ function Chat() {
                                 backgroundColor: "#25D366",
                                 color: "#121212",
                                 fontWeight: "bold",
-                                padding: "12px 20px",
+                                padding: "12px 16px",
                                 border: "none",
                                 borderRadius: "50%",
                                 cursor: "pointer",
@@ -206,6 +237,26 @@ function Chat() {
                     </div>
                 )}
             </div>
+
+            {/* ✅ Responsive adjustments */}
+            <style>
+                {`
+                    @media (max-width: 768px) {
+                        div[style*="display: flex"][style*="height: 100vh"] {
+                            flex-direction: column;
+                        }
+                        div[style*="width: 280px"] {
+                            width: 100% !important;
+                            min-width: unset !important;
+                            border-right: none !important;
+                            border-bottom: 1px solid #333 !important;
+                        }
+                        div[style*="flex: 1"][style*="flex-direction: column"] {
+                            height: calc(100vh - 60px);
+                        }
+                    }
+                `}
+            </style>
         </div>
     );
 }
